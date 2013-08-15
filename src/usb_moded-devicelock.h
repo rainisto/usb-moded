@@ -24,10 +24,12 @@
 /*============================================================================= */
 
 #define DEVICELOCK_SERVICE		"com.jolla.devicelockd"
+#define DEVICELOCK_REQUEST_IF		"com.jolla.devicelockd"
 #define DEVICELOCK_REQUEST_PATH		"/"
 #define DEVICELOCK_STATE_REQ		"getState"
 
 #define MATCH_DEVICELOCK_SIGNALS\
   "type='signal'"\
+  ",interface='"DEVICELOCK_REQUEST_IF"'"\
   ",path='"DEVICELOCK_REQUEST_PATH"'"
 

@@ -50,7 +50,6 @@ int usb_moded_get_export_permission(void)
   DBusMessage *msg = NULL, *reply = NULL;
   DBusError error;
   int ret = 2;
-  dbus_int32_t arg = 1;
 
   dbus_error_init(&error);
 
@@ -61,9 +60,8 @@ int usb_moded_get_export_permission(void)
 	return(ret);
   }
 
-  if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, NULL, DEVICELOCK_STATE_REQ)) != NULL)
+  if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, DEVICELOCK_REQUEST_IF, DEVICELOCK_STATE_REQ)) != NULL)
   {
-	//dbus_message_append_args (msg, DBUS_TYPE_INT32, &arg, DBUS_TYPE_INVALID);
         if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL)
 	{
 		log_debug("Answer from devicelock recieved\n");
@@ -83,7 +81,7 @@ int start_devicelock_listener(void)
   DBusError       err = DBUS_ERROR_INIT;
   DBusConnection *dbus_conn_devicelock = NULL;
 
-  if( (dbus_conn_devicelock = dbus_bus_get(DBUS_BUS_SYSTEM, &err)) == 0 )
+  if( (dbus_conn_devicelock = dbus_bus_get(DBUS_BUS_SESSION, &err)) == 0 )
   {
 	 log_err("Could not connect to dbus for devicelock\n"); 
 	 goto cleanup;
@@ -113,7 +111,7 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   const char         *member    = dbus_message_get_member(msg);
   const char         *object    = dbus_message_get_path(msg);
   int                 type      = dbus_message_get_type(msg);
-  int ret=0, ret1 = 0;
+  int ret=0;
 
   (void) user_data;
 
@@ -125,8 +123,8 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   // handle known signals
   else if( !strcmp(member, "stateChanged") )
   {
-        dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret1, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
-  	log_debug("Devicelock state changed. New state = %d\n", ret);
+	dbus_message_get_args(msg, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
+	log_debug("Devicelock state changed. New state = %d\n", ret);
   	if(ret == 0 && get_usb_connection_state() == 1 )
   	{	
          	if(!strcmp(get_usb_mode(), MODE_UNDEFINED) || !strcmp(get_usb_mode(), MODE_CHARGING))
