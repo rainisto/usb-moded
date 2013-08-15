@@ -23,15 +23,11 @@
 
 /*============================================================================= */
 
-#define DEVICELOCK_SERVICE		"com.nokia.devicelock"
-#define DEVICELOCK_REQUEST_PATH		"/request"
-#define DEVICELOCK_REQUEST_IF		"com.nokia.devicelock"
+#define DEVICELOCK_SERVICE		"com.jolla.devicelockd"
+#define DEVICELOCK_REQUEST_PATH		"/"
 #define DEVICELOCK_STATE_REQ		"getState"
-
-#define DEVICELOCK_LOCKED		"Locked"
 
 #define MATCH_DEVICELOCK_SIGNALS\
   "type='signal'"\
-  ",interface='"DEVICELOCK_REQUEST_IF"'"\
   ",path='"DEVICELOCK_REQUEST_PATH"'"
 

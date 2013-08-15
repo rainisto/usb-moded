@@ -54,18 +54,21 @@ int usb_moded_get_export_permission(void)
 
   dbus_error_init(&error);
 
-  if( (dbus_conn_devicelock = dbus_bus_get(DBUS_BUS_SYSTEM, &error)) == 0 )
+  if( (dbus_conn_devicelock = dbus_bus_get(DBUS_BUS_SESSION, &error)) == 0 )
   {
-	 log_err("Could not connect to dbus for devicelock\n"); 
+	log_err("Could not connect to dbus for devicelock: %s\n", error.message);
+	dbus_error_free (&error);
+	return(ret);
   }
 
-  if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, DEVICELOCK_REQUEST_IF, DEVICELOCK_STATE_REQ)) != NULL) 
+  if ((msg = dbus_message_new_method_call(DEVICELOCK_SERVICE, DEVICELOCK_REQUEST_PATH, NULL, DEVICELOCK_STATE_REQ)) != NULL)
   {
-	dbus_message_append_args (msg, DBUS_TYPE_INT32, &arg, DBUS_TYPE_INVALID);
-        if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL) 
+	//dbus_message_append_args (msg, DBUS_TYPE_INT32, &arg, DBUS_TYPE_INVALID);
+        if ((reply = dbus_connection_send_with_reply_and_block(dbus_conn_devicelock, msg, -1, NULL)) != NULL)
 	{
-            dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
-            dbus_message_unref(reply);
+		log_debug("Answer from devicelock recieved\n");
+		dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &ret, DBUS_TYPE_INVALID);
+		dbus_message_unref(reply);
         }
         dbus_message_unref(msg);
   } 
@@ -117,7 +120,6 @@ static DBusHandlerResult devicelock_unlocked_cb(DBusConnection *conn, DBusMessag
   // sanity checks
   if( !interface || !member || !object ) goto cleanup;
   if( type != DBUS_MESSAGE_TYPE_SIGNAL ) goto cleanup;
-  if( strcmp(interface, DEVICELOCK_REQUEST_IF) ) goto cleanup;
   if( strcmp(object, DEVICELOCK_REQUEST_PATH) )  goto cleanup;
 
   // handle known signals

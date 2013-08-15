@@ -187,10 +187,11 @@ void set_usb_connected_state(void)
 	return;
   }
 #ifdef MEEGOLOCK
-  int act_dead = 0;
-  /* check if we are in acting dead or not, /tmp/USER will not exist in acting dead */
+  /*int act_dead = 0;
+  check if we are in acting dead or not, /tmp/USER will not exist in acting dead
   act_dead = access("/tmp/USER", R_OK);
-  if(mode_to_set && !export && !act_dead)
+  if(mode_to_set && !export && !act_dead) */
+  if(mode_to_set && !export)
 #else
   if(mode_to_set)
 #endif /* MEEGOLOCK */
